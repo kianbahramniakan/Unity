@@ -36,7 +36,7 @@ public class WordsGrid : MonoBehaviour
 
         foreach (var square in _squareList)
         {
-            if (rowNumber +1 > currentGameData.selectedBoardData.Rows)
+            if (rowNumber + 1 > currentGameData.selectedBoardData.Rows)
             {
                 columnNumber++;
                 rowNumber = 0;
@@ -48,6 +48,7 @@ public class WordsGrid : MonoBehaviour
             square.GetComponent<Transform>().position = new Vector2(positionX, positionY);
             rowNumber++;
         }
+
         Debug.Log(_squareList.Count);
     }
 
@@ -85,20 +86,23 @@ public class WordsGrid : MonoBehaviour
 
                     if (normalLetterData.image == null || selectedLetterData == null)
                     {
-                        Debug.LogError("All files in your  array should have some letters. Press Fill up with random button in your board data to add random letter. Letter:" + squareLetter);
-                        
-                        #if UNITY_EDITOR
+                        Debug.LogError(
+                            "All files in your  array should have some letters. Press Fill up with random button in your board data to add random letter. Letter:" +
+                            squareLetter);
+
+#if UNITY_EDITOR
 
                         if (UnityEditor.EditorApplication.isPlaying)
                         {
                             UnityEditor.EditorApplication.isPlaying = false;
                         }
-                        #endif
+#endif
                     }
                     else
                     {
                         _squareList.Add(Instantiate(gridSquarePrefab));
-                        _squareList[_squareList.Count - 1].GetComponent<GridSquare>().SetSprite(normalLetterData, correctLetterData, selectedLetterData);
+                        _squareList[_squareList.Count - 1].GetComponent<GridSquare>()
+                            .SetSprite(normalLetterData, correctLetterData, selectedLetterData);
                         _squareList[_squareList.Count - 1].transform.SetParent(this.transform);
                         _squareList[_squareList.Count - 1].GetComponent<Transform>().position = new Vector3(0f, 0f, 0f);
                         _squareList[_squareList.Count - 1].transform.localScale = squareScale;
@@ -127,6 +131,7 @@ public class WordsGrid : MonoBehaviour
                 return finalScale;
             }
         }
+
         return finalScale;
     }
 
@@ -154,7 +159,7 @@ public class WordsGrid : MonoBehaviour
         float width = (1.7f * height) * Screen.width / Screen.height;
         return width / 2;
     }
-    
+
 // Generate random letters on empty grid squares
     public void GenerateRandomLettersOnEmptyGrids()
     {
@@ -171,39 +176,55 @@ public class WordsGrid : MonoBehaviour
                     GridSquare gridSquare = square.GetComponent<GridSquare>();
 
                     // Check if the square is part of a correct word
-                    
-                    
-                        // Check if the square has an empty letter
-                     
-                        
-                            // Generate a random letter
-                            int randomIndex = Random.Range(0, alphabetData.AlphabetNormal.Count);
-                            var randomLetterData = alphabetData.AlphabetNormal[randomIndex];
-                            // Update the square with the random letter
-                            gridSquare.SetSprite(randomLetterData, randomLetterData, randomLetterData);
-                    
+
+
+                    // Check if the square has an empty letter
+
+
+                    // Generate a random letter
+                    int randomIndex = Random.Range(0, alphabetData.AlphabetNormal.Count);
+                    var randomLetterData = alphabetData.AlphabetNormal[randomIndex];
+                    // Update the square with the random letter
+                    gridSquare.SetSprite(randomLetterData, randomLetterData, randomLetterData);
+
                 }
             }
         }
     }
+
     public void ApplyGravity()
     {
-        GameObject temp;
-        // Loop through each row (from bottom to top)
-        for (int r = 0; r < currentGameData.selectedBoardData.Rows - 1; r++)
+        Invoke("runCheck", 0.5f);
+    }
+
+    void runCheck()
+    {
+        int numRows = currentGameData.selectedBoardData.Rows;
+        int numCols = currentGameData.selectedBoardData.Columns;
+
+        for (int col = 0; col < numCols; col++)
         {
-            for (int c = 0; c < currentGameData.selectedBoardData.Columns; c++)
+            int writeIndex = col * numCols + numRows - 1;
+            for (int row = numRows - 1; row >= 0; row--)
             {
-                GameObject currentSquare = _squareList[c * currentGameData.selectedBoardData.Rows + r];
-                GameObject squareBelow = _squareList[c * currentGameData.selectedBoardData.Rows + r + 1];
-                if (currentSquare != null && squareBelow == null)
+                int currentIndex = col * numCols + row;
+                if (_squareList[currentIndex] != null)
                 {
-                    // If the current square exists but the one below is empty, move the current square down
-                    _squareList[c * currentGameData.selectedBoardData.Rows + r + 1] = currentSquare;
-                    currentSquare.tag = "UpTrue";
-                    _squareList[c * currentGameData.selectedBoardData.Rows + r] = null;
+                    if (writeIndex != currentIndex)
+                    {
+                        // Move non-empty cell to the writeIndex position
+                        _squareList[writeIndex] = _squareList[currentIndex];
+                        _squareList[currentIndex] = null;
+
+                        _squareList[writeIndex].transform.Translate(0, -1.29f * (writeIndex - currentIndex), 0);
+                    }
+
+                    writeIndex--;
                 }
             }
         }
     }
+
+
 }
+

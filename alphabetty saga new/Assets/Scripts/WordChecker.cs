@@ -149,14 +149,6 @@ public class WordChecker : MonoBehaviour
                     _word = string.Empty;
                     _correctSquareList.Clear();
                     // Destroy correct words with the "True" tag
-                    gameObject.GetComponent<WordsGrid>().ApplyGravity();
-                                        
-                    GameObject[] UpertrueWords = GameObject.FindGameObjectsWithTag("UpTrue");
-                    
-                    foreach (GameObject letters in UpertrueWords)
-                    {
-                        letters.transform.Translate(0,-1.29f,0);
-                    }
                     
                     GameObject[] trueWords = GameObject.FindGameObjectsWithTag("True");
                     
@@ -166,13 +158,23 @@ public class WordChecker : MonoBehaviour
                     }
 
                     Debug.Log("gravity applied");
+                    
+                    gameObject.GetComponent<WordsGrid>().ApplyGravity();
+                                        
+                    GameObject[] UpertrueWords = GameObject.FindGameObjectsWithTag("UpTrue");
+                    
+                    foreach (GameObject letters in UpertrueWords)
+                    {
+                        letters.transform.Translate(0,-1.29f,0);
+                    }
+
+                    //FillUpWithRandom();
                     //_wordsGrid.SetSquaresPosition();
                     return;
                 }
             }
         }
     }
-
     private string[] LoadWordListFromFile(string filePath)
     {
         try
@@ -255,7 +257,7 @@ public class WordChecker : MonoBehaviour
     }
 
     private BoardData GameDataInstance;
-    /*public void FillUpWithRandom()
+    public void FillUpWithRandom()
     {
         for (int i = 0; i < 7; i++)
         {
@@ -271,7 +273,7 @@ public class WordChecker : MonoBehaviour
                 }
             }
         }
-    }*/
+    }
     private void CheckBoardCompleted()
     {
         bool loadNextCategory = false;
